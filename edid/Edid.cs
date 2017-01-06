@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-// ReSharper disable InconsistentNaming
-// ReSharper disable ArrangeTypeMemberModifiers
-// ReSharper disable BuiltInTypeReferenceStyle
-// ReSharper disable FieldCanBeMadeReadOnly.Local
-
 namespace Walterlv.EdidDemo
 {
     public class Edid
     {
-        private byte[] _data;
+        private readonly byte[] _data;
 
         public Edid(byte[] data)
         {
@@ -291,6 +286,9 @@ namespace Walterlv.EdidDemo
         }
     }
 
+    /// <summary>
+    /// Presents parsed EDID information.
+    /// </summary>
     public class EdidDetail
     {
         public static EdidDetail Parse(byte[] data)
