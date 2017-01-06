@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDID", "EDID.csproj", "{4ED
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_SolutionItems", "{58E22BB5-2A71-489B-BA86-5395B5A671D0}"
 	ProjectSection(SolutionItems) = preProject
+		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md

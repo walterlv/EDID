@@ -3,14 +3,14 @@ Read EDID information to get Extended Display Identification Data, such as scree
 
 ## Sample
 
-This is a sample running on my computer.
+This is a sample running result on my computer.
 
 ```
 Displaying Device List:  
 ==========  
 DELL S2240T  
-48¡Á27, 21.7  
-477¡Á268, 21.5  
+48Ã—27, 21.7  
+477Ã—268, 21.5  
 00 FF FF FF FF FF FF 00 10 AC 95 A0 55 31 59 30  
 2E 17 01 03 80 30 1B 78 EA 27 95 A5 55 50 A2 27  
 0B 50 54 A5 4B 00 71 4F 81 80 D1 C0 01 01 01 01  
@@ -22,8 +22,8 @@ DELL S2240T
 
 ==========  
 DELL U2414H  
-53¡Á30, 24  
-527¡Á296, 23.8  
+53Ã—30, 24  
+527Ã—296, 23.8  
 00 FF FF FF FF FF FF 00 10 AC B2 A0 4C 35 41 33  
 1F 1A 01 03 80 35 1E 78 EE 7E 75 A7 55 52 9C 27  
 0F 50 54 A5 4B 00 71 4F 81 80 A9 C0 A9 40 D1 C0  
