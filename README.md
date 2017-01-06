@@ -1,7 +1,7 @@
 # EDID
 Read EDID information to get Extended Display Identification Data, such as screen physical size, etc.
 
-# Getting Started
+## Getting Started
 
 - Visual Studio Community 2015/2017 (or the latest version)
 - .NET Framework 4.5
