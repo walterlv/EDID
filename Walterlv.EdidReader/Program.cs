@@ -2,11 +2,17 @@
 
 using Walterlv.EdidReader;
 
-int i = 0;
 var infoList = Edid.Get();
-var info = infoList.Aggregate("Displaying Device List:", (sum, add) =>
+Console.WriteLine("Displaying Device List:");
+Console.WriteLine();
+for (var i = 0; i < infoList.Length; i++)
 {
-    var detail = add.GetDetail();
+    if (i is not 0)
+    {
+        Console.WriteLine("==========");
+    }
+
+    var detail = infoList[i].GetDetail();
 
     var iWidth = detail.HorizontalImageSize;
     var iHeight = detail.VerticalImageSize;
@@ -16,27 +22,23 @@ var info = infoList.Aggregate("Displaying Device List:", (sum, add) =>
     var dHeight = detail.VerticalDisplaySize;
     var dHypotenuse = Math.Sqrt(dWidth * dWidth + dHeight * dHeight);
 
-    var text = $"{detail.Manufacturer}{Environment.NewLine}" +
-               $"{iWidth}×{iHeight}, {Math.Round(iHypotenuse / 2.54, 1)}{Environment.NewLine}" +
-               $"{dWidth}×{dHeight}, {Math.Round(dHypotenuse / 2.54) / 10}{Environment.NewLine}" +
-               $"{add.ToString()}";
+    var text = $"""
+        {detail.Manufacturer}
+        {iWidth}×{iHeight}, {Math.Round(iHypotenuse / 2.54, 1)}
+        {dWidth}×{dHeight}, {Math.Round(dHypotenuse / 2.54) / 10}
+        {infoList[i]}
+        """;
+    Console.WriteLine(text);
 
     try
     {
         File.WriteAllText($"{detail.Manufacturer}.txt", text, Encoding.UTF8);
     }
-    catch (IOException ex)
-    {
-        File.WriteAllText($"edid{++i}.txt", text, Encoding.UTF8);
-        text = $"{text}{Environment.NewLine}{ex.Message}";
-    }
     catch (Exception ex)
     {
-        File.WriteAllText($"edid{++i}.txt", text, Encoding.UTF8);
-        text = $"{text}{Environment.NewLine}{ex.Message}";
+        Console.WriteLine(ex);
     }
+}
 
-    return $"{sum}{Environment.NewLine}=========={Environment.NewLine}{text}";
-});
-Console.WriteLine(info);
+Console.WriteLine("Press ANY KEY to exit...");
 Console.Read();
