@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Walterlv.EdidDemo
+namespace Walterlv.EdidReader
 {
     public class Edid
     {
@@ -21,9 +19,9 @@ namespace Walterlv.EdidDemo
 
         public override string ToString()
         {
-            int i = 0;
+            var i = 0;
             var builder = new StringBuilder();
-            foreach (byte b in _data)
+            foreach (var b in _data)
             {
                 builder.Append(b.ToString("X2")).Append(" ");
                 i++;
@@ -46,29 +44,29 @@ namespace Walterlv.EdidDemo
 
             public static Edid[] GetEDID()
             {
-                List<Edid> lsi = new List<Edid>();
-                IntPtr pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(GUID_CLASS_MONITOR));
+                var lsi = new List<Edid>();
+                var pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(GUID_CLASS_MONITOR));
                 Marshal.StructureToPtr(GUID_CLASS_MONITOR, pGuid, false);
-                IntPtr hDevInfo = SetupDiGetClassDevsEx(
+                var hDevInfo = SetupDiGetClassDevsEx(
                     pGuid,
                     null,
-                    IntPtr.Zero,
+                    nint.Zero,
                     DIGCF_PRESENT,
-                    IntPtr.Zero,
+                    nint.Zero,
                     null,
-                    IntPtr.Zero);
+                    nint.Zero);
 
-                DISPLAY_DEVICE dd = new DISPLAY_DEVICE();
+                var dd = new DISPLAY_DEVICE();
                 dd.cb = Marshal.SizeOf(typeof(DISPLAY_DEVICE));
-                UInt32 dev = 0;
+                uint dev = 0;
 
                 string DeviceID;
-                bool bFoundDevice = false;
+                var bFoundDevice = false;
                 while (EnumDisplayDevices(null, dev, ref dd, 0) && !bFoundDevice)
                 {
-                    DISPLAY_DEVICE ddMon = new DISPLAY_DEVICE();
+                    var ddMon = new DISPLAY_DEVICE();
                     ddMon.cb = Marshal.SizeOf(typeof(DISPLAY_DEVICE));
-                    UInt32 devMon = 0;
+                    uint devMon = 0;
 
                     while (EnumDisplayDevices(dd.DeviceName, devMon, ref ddMon, 0) && !bFoundDevice)
                     {
@@ -97,16 +95,16 @@ namespace Walterlv.EdidDemo
 
             private static bool GetActualEDID(out string DeviceID, List<Edid> lsi)
             {
-                IntPtr pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(GUID_CLASS_MONITOR));
+                var pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(GUID_CLASS_MONITOR));
                 Marshal.StructureToPtr(GUID_CLASS_MONITOR, pGuid, false);
-                IntPtr hDevInfo = SetupDiGetClassDevsEx(
+                var hDevInfo = SetupDiGetClassDevsEx(
                     pGuid,
                     null,
-                    IntPtr.Zero,
+                    nint.Zero,
                     DIGCF_PRESENT,
-                    IntPtr.Zero,
+                    nint.Zero,
                     null,
-                    IntPtr.Zero);
+                    nint.Zero);
 
                 DeviceID = string.Empty;
 
@@ -116,14 +114,14 @@ namespace Walterlv.EdidDemo
                     return false;
                 }
 
-                for (int i = 0; Marshal.GetLastWin32Error() != ERROR_NO_MORE_ITEMS; ++i)
+                for (var i = 0; Marshal.GetLastWin32Error() != ERROR_NO_MORE_ITEMS; ++i)
                 {
-                    SP_DEVINFO_DATA devInfoData = new SP_DEVINFO_DATA();
+                    var devInfoData = new SP_DEVINFO_DATA();
                     devInfoData.cbSize = Marshal.SizeOf(typeof(SP_DEVINFO_DATA));
 
                     if (SetupDiEnumDeviceInfo(hDevInfo, i, ref devInfoData) > 0)
                     {
-                        UIntPtr hDevRegKey = SetupDiOpenDevRegKey(
+                        var hDevRegKey = SetupDiOpenDevRegKey(
                             hDevInfo,
                             ref devInfoData,
                             DICS_FLAG_GLOBAL,
@@ -134,7 +132,7 @@ namespace Walterlv.EdidDemo
                         if (hDevRegKey == null)
                             continue;
 
-                        Edid si = PullEDID(hDevRegKey);
+                        var si = PullEDID(hDevRegKey);
                         if (si != null)
                         {
                             lsi.Add(si);
@@ -150,32 +148,32 @@ namespace Walterlv.EdidDemo
 
             private const int ERROR_SUCCESS = 0;
 
-            private static Edid PullEDID(UIntPtr hDevRegKey)
+            private static Edid PullEDID(nuint hDevRegKey)
             {
                 Edid si = null;
-                StringBuilder valueName = new StringBuilder(128);
+                var valueName = new StringBuilder(128);
                 uint ActualValueNameLength = 128;
 
-                byte[] EDIdata = new byte[1024];
-                IntPtr pEDIdata = Marshal.AllocHGlobal(EDIdata.Length);
+                var EDIdata = new byte[1024];
+                var pEDIdata = Marshal.AllocHGlobal(EDIdata.Length);
                 Marshal.Copy(EDIdata, 0, pEDIdata, EDIdata.Length);
 
-                int size = 1024;
+                var size = 1024;
                 for (uint i = 0, retValue = ERROR_SUCCESS; retValue != ERROR_NO_MORE_ITEMS; i++)
                 {
                     retValue = RegEnumValue(
                         hDevRegKey, i,
                         valueName, ref ActualValueNameLength,
-                        IntPtr.Zero, IntPtr.Zero, pEDIdata, ref size); // EDIdata, pSize);
+                        nint.Zero, nint.Zero, pEDIdata, ref size); // EDIdata, pSize);
 
-                    string data = valueName.ToString();
+                    var data = valueName.ToString();
                     if (retValue != ERROR_SUCCESS || !data.Contains("EDID"))
                         continue;
 
                     if (size < 1)
                         continue;
 
-                    byte[] actualData = new byte[size];
+                    var actualData = new byte[size];
                     Marshal.Copy(pEDIdata, actualData, 0, size);
                     si = new Edid(actualData);
                 }
@@ -195,13 +193,13 @@ namespace Walterlv.EdidDemo
 
             [DllImport("advapi32.dll", SetLastError = true)]
             static extern uint RegEnumValue(
-                UIntPtr hKey,
+                nuint hKey,
                 uint dwIndex,
                 StringBuilder lpValueName,
                 ref uint lpcValueName,
-                IntPtr lpReserved,
-                IntPtr lpType,
-                IntPtr lpData,
+                nint lpReserved,
+                nint lpType,
+                nint lpData,
                 ref int lpcbData);
 
             [Flags()]
@@ -252,22 +250,22 @@ namespace Walterlv.EdidDemo
                 public int cbSize;
                 public Guid ClassGuid;
                 public uint DevInst;
-                public IntPtr Reserved;
+                public nint Reserved;
             }
 
             [DllImport("setupapi.dll")]
-            private static extern IntPtr SetupDiGetClassDevsEx(IntPtr ClassGuid,
-                [MarshalAs(UnmanagedType.LPStr)] String enumerator,
-                IntPtr hwndParent, Int32 Flags, IntPtr DeviceInfoSet,
-                [MarshalAs(UnmanagedType.LPStr)] String MachineName, IntPtr Reserved);
+            private static extern nint SetupDiGetClassDevsEx(nint ClassGuid,
+                [MarshalAs(UnmanagedType.LPStr)] string enumerator,
+                nint hwndParent, int Flags, nint DeviceInfoSet,
+                [MarshalAs(UnmanagedType.LPStr)] string MachineName, nint Reserved);
 
             [DllImport("setupapi.dll", SetLastError = true)]
-            private static extern Int32 SetupDiEnumDeviceInfo(IntPtr DeviceInfoSet,
-                Int32 MemberIndex, ref SP_DEVINFO_DATA DeviceInterfaceData);
+            private static extern int SetupDiEnumDeviceInfo(nint DeviceInfoSet,
+                int MemberIndex, ref SP_DEVINFO_DATA DeviceInterfaceData);
 
             [DllImport("Setupapi", CharSet = CharSet.Auto, SetLastError = true)]
-            private static extern UIntPtr SetupDiOpenDevRegKey(
-                IntPtr hDeviceInfoSet,
+            private static extern nuint SetupDiOpenDevRegKey(
+                nint hDeviceInfoSet,
                 ref SP_DEVINFO_DATA deviceInfoData,
                 int scope,
                 int hwProfile,
@@ -280,7 +278,7 @@ namespace Walterlv.EdidDemo
 
             [DllImport("advapi32.dll", SetLastError = true)]
             private static extern int RegCloseKey(
-                UIntPtr hKey);
+                nuint hKey);
 
             #endregion
         }
@@ -293,9 +291,9 @@ namespace Walterlv.EdidDemo
     {
         public static EdidDetail Parse(byte[] data)
         {
-            EdidDetail detail = new EdidDetail();
+            var detail = new EdidDetail();
 
-            string hex = Encoding.ASCII.GetString(data);
+            var hex = Encoding.ASCII.GetString(data);
             detail.Manufacturer = hex.Substring(90, 17).Trim().Replace("\0", string.Empty).Replace("?", string.Empty);
             detail.Model = hex.Substring(108, 17).Trim().Replace("\0", string.Empty).Replace("?", string.Empty);
 
@@ -303,8 +301,8 @@ namespace Walterlv.EdidDemo
             var HORIZONTAL_DISPLAY_TOP_OFFSET = 4;
             var HORIZONTAL_DISPLAY_TOP_MASK = 0x0F;
             var VERTICAL_DISPLAY_TOP_MASK = 0x0F;
-            detail.HorizontalDisplaySize = (((data[DTD_START + 14] >> HORIZONTAL_DISPLAY_TOP_OFFSET) & HORIZONTAL_DISPLAY_TOP_MASK) << 8) | data[DTD_START + 12];
-            detail.VerticalDisplaySize = ((data[DTD_START + 14] & VERTICAL_DISPLAY_TOP_MASK) << 8) | data[DTD_START + 13];
+            detail.HorizontalDisplaySize = (data[DTD_START + 14] >> HORIZONTAL_DISPLAY_TOP_OFFSET & HORIZONTAL_DISPLAY_TOP_MASK) << 8 | data[DTD_START + 12];
+            detail.VerticalDisplaySize = (data[DTD_START + 14] & VERTICAL_DISPLAY_TOP_MASK) << 8 | data[DTD_START + 13];
 
             detail.HorizontalImageSize = data[21];
             detail.VerticalImageSize = data[22];
